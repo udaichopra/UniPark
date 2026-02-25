@@ -1,12 +1,9 @@
+const supabase = require("./supabaseClient");
 const express = require("express");
 const cors = require("cors");
 //load libraries
 
 const app = express();//create server for app
-const spots = [
-  { id: 1, price: 6, title: "Near Gym" }
-]
-const bookings=[]
 app.use(cors());
 app.use(express.json());
 
@@ -14,10 +11,15 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
-app.get("/spots", (req, res) => {
-  res.json(spots);
+app.get("/spots", async(req, res) => {
+  const {data,error}= await supabase.from("spots").select("*");
+  if (error){
+    res.status(400).json({error:error.message});
+    return;
+  }
+  return res.json(data);
 });
-app.post("/spots",(req,res) => {
+app.post("/spots",async(req,res) => {
   const price=Number(req.body.price)
   const title=req.body.title
   if (Number.isNaN(price) || price <= 0){
@@ -33,60 +35,65 @@ app.post("/spots",(req,res) => {
     return;
   }
   else{
-    const newSpot= { id: spots.length+1 ,price: price, title: title.trim()};//create an object for newspot created
-    spots.push(newSpot);
-    res.status(201).json(newSpot);
+    const newSpot= {price: price, title: title.trim()};//create an object for newspot created
+    const {data,error}= await supabase.from("spots").insert(newSpot).select();
+    if (error){
+      return res.status(500).json({error:error.message});
+    }
+    res.status(201).json(data[0]);
     return;
   }
-  
-
 });
-app.get("/bookings",(req,res)=>{
-  res.json(bookings)
+app.get("/bookings",async(req,res)=>{
+  const {data,error}= await supabase.from("bookings").select("*");
+  if (error){
+    res.status(400).json({error:error.message});
+    return;
+  }
+  return res.json(data);
 })
-app.post("/bookings",(req,res)=>{
+app.post("/bookings",async(req,res)=>{
   const fullname=req.body.fullname
   const id= Number(req.body.id)
   const startTime=new Date(req.body.startTime)
   const endTime=new Date(req.body.endTime)
   if (Number.isNaN(id)||id<=0){
-    res.status(400).json({error: "spot id is not valid"});
-    return;
+    return res.status(400).json({error: "spot id is not valid"});
   }
   else if (typeof fullname !=="string"){
-    res.status(400).json({error: "Not a valid name"});
-    return;
+    return res.status(400).json({error: "Not a valid name"});
   }
   else if (fullname.trim().length===0){
-    res.status(400).json({error:"Fullname field is empty"});
-    return;
+    return res.status(400).json({error:"Fullname field is empty"});
   }
   else if (isNaN(startTime)||isNaN(endTime)){
-    res.status(400).json({error:"Invalid date format"});
-    return;
+    return res.status(400).json({error:"Invalid date format"});
   }
   else if (startTime >= endTime) {
-    res.status(400).json({ error: "End time must be after start time" });
-    return;
+    return res.status(400).json({ error: "End time must be after start time" });
+    
   }
   else{
-    const checknewBooking={id:id, bookid:bookings.length+1,startTime:startTime,endTime: endTime ,fullname:fullname};
-    for(let i=0;i<bookings.length; i++){
-      const prevbooking=bookings[i];
-      if (prevbooking.id===checknewBooking.id){
-        if (prevbooking.startTime < checknewBooking.endTime && prevbooking.endTime>checknewBooking.startTime){
-          res.status(400).json({error:"This spot is unavailble at the time you've selected"});
-          return;
-        }
+    const {data:existingBookings,error:fetchError}= await supabase.from("bookings").select("*").eq("spot_id",id)
+    if (fetchError){
+      return res.status(500).json({error:fetchError.message})
+    }
+    for(let i=0;i<existingBookings.length; i++){
+      const prevbooking=existingBookings[i];
+      const prevstartTime=new Date(prevbooking.start_time);
+      const prevendTime= new Date(prevbooking.end_time);
+
+      if (prevstartTime < endTime && prevendTime>startTime){
+        return res.status(400).json({error:"This spot is unavailble at the time you've selected"});
       }
     }
+    const submitBookingInput={spot_id:id,start_time:startTime,end_time: endTime ,fullname:fullname.trim()};
+    const {data,error}= await supabase.from("bookings").insert(submitBookingInput).select()
+    if (error){
+      return res.status(500).json({error:error.message});
+    }
+    return res.status(201).json(data[0]);
   }
-  
-  const newBooking={id:id, bookid:bookings.length+1,startTime:startTime,endTime: endTime ,fullname:fullname};
-  bookings.push(newBooking);
-  res.status(201).json(newBooking);
-
-
 });
 
 const PORT = 5050;

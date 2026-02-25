@@ -66,6 +66,7 @@ function App() {
   const handleBook=(spotId)=>{
     setBookingSpotId(spotId)
     setBookDetails({...bookdetails,id:spotId})
+    setbooksubmitMsg("")
   }
   const [booksubmitMsg,setbooksubmitMsg]=useState("")
   const submitBooking=()=>{
@@ -81,9 +82,9 @@ function App() {
       else{
         const newBooking=data
         setBookings([...bookings,data])
-        setBookingSpotId(null)
         setBookDetails({fullname:"", id:"", bookid:null, startTime:"", endTime:""})
         setbooksubmitMsg("Booking successfully added.")
+        setBookingSpotId(null)
           
       }
     })
@@ -113,33 +114,30 @@ function App() {
             <h1>Parking end time</h1> <input type="datetime-local" name="endTime" onChange={handleBookForm}/>
             <button type="button" onClick={submitBooking}>Submit Booking</button>
           </form>
-        
-
         )}
-        
-        <h1>{booksubmitMsg}</h1>
         </div>
         ))}
+      <h1>{booksubmitMsg}</h1>
       <div>
         <button onClick={handleClick}>Create Spot</button>
+        {showForm &&(
+          <form>
+            <h1> Price$:</h1> <input type="number" name="price" onChange={handleChange}/>
+            <h1>Title</h1> <input type="text" name="title" onChange={handleChange}/>
+            <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>
+            </form>
+    )} 
       </div>
 
 
       <div>
         <h1>My Bookings:</h1>
         {bookings.map(booking=>(
-          <h1 key={booking.bookid}>Parking Id:{booking.id}, Booking id: {booking.bookid},
-          Parking Starts at :{booking.startTime}, Parking ends at: {booking.endTime} Fullname: {booking.fullname} </h1>
+          <h1 key={booking.bookid}>Parking Id:{booking.spot_id}, Booking id: {booking.bookid},
+          Parking Starts at :{booking.start_time}, Parking ends at: {booking.end_time} Fullname: {booking.fullname} </h1>
         ))}
         
       </div>
-      {showForm &&(
-      <form>
-      <h1> Price$:</h1> <input type="number" name="price" onChange={handleChange}/>
-      <h1>Title</h1> <input type="text" name="title" onChange={handleChange}/>
-      <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>
-      </form>
-    )} 
       {submitForm && (
         <h1>{submitMessage}</h1>
       )}
