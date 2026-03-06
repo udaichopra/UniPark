@@ -22,7 +22,16 @@ app.get("/spots", async(req, res) => {
 app.post("/spots",async(req,res) => {
   const price=Number(req.body.price)
   const title=req.body.title
-  if (Number.isNaN(price) || price <= 0){
+  const address=req.body.address
+  if (typeof address !== "string"){
+    res.status(400).json({error: "The address is not valid"});
+    return;
+  }
+  else if (address.trim().length===0){
+    res.status(400).json({error:"Adress is empty"});
+    return;
+  }
+  else if (Number.isNaN(price) || price <= 0){
     res.status(400).json({error: "Price is not valid"});
     return;
   }
@@ -35,7 +44,7 @@ app.post("/spots",async(req,res) => {
     return;
   }
   else{
-    const newSpot= {price: price, title: title.trim()};//create an object for newspot created
+    const newSpot= {address: address.trim(), price: price, title: title.trim()};//create an object for newspot created
     const {data,error}= await supabase.from("spots").insert(newSpot).select();
     if (error){
       return res.status(500).json({error:error.message});

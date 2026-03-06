@@ -5,7 +5,7 @@ import './App.css'
 
 function App() {
   const [spots, setSpots]=useState([])
-  const [details,setDetails]=useState({price: "", title:"" })
+  const [details,setDetails]=useState({address: "",price: "", title:"" })
   const [showForm,setShowForm]=useState(false)
 
   const handleChange=(event)=>{
@@ -38,7 +38,7 @@ function App() {
       body: JSON.stringify(details)
     })
       .then(response=>response.json())
-      .then (data=>{//learn why data equals this
+      .then (data=>{
         if (data.error){
           console.log(data.error)
           setSubmitMessage(data.error)
@@ -48,7 +48,7 @@ function App() {
         setSubmitForm(true)
         setSubmitMessage("Spot Added Succesfully")
         setShowForm(false)
-        setDetails({price: "", title: "" })
+        setDetails({address:"", price: "", title: "" })
         }
     })
   }
@@ -63,7 +63,7 @@ function App() {
     const value=event.target.value
     setBookDetails({...bookdetails,[name]:value})
   }
-  const handleBook=(spotId)=>{
+  const handleBook=(spotId,address)=>{
     setBookingSpotId(spotId)
     setBookDetails({...bookdetails,id:spotId})
     setbooksubmitMsg("")
@@ -98,7 +98,7 @@ function App() {
     .then(response=>response.json())
     .then (data=>setBookings(data))
   },[])
-  
+
   const cancelBooking=(bookid)=>{
     fetch(`http://127.0.0.1:5050/bookings/${bookid}`,{
       method:"DELETE"
@@ -127,7 +127,7 @@ function App() {
       <h1>Available Parking Spots</h1>
       {spots.map(spot=>(
         <div key={spot.id}>
-        <h1>id: {spot.id}, Price: {spot.price}$, Title: {spot.title}</h1>
+        <h1> id: {spot.id},address: {spot.address}, Price: {spot.price}$, Title: {spot.title}</h1>
         <button type="button" onClick={()=>handleBook(spot.id)}>Book This Spot</button>
         {bookingSpotId==spot.id &&(
           <form>
@@ -140,10 +140,12 @@ function App() {
         </div>
         ))}
       <h1>{booksubmitMsg}</h1>
+
       <div>
         <button onClick={handleClick}>Create Spot</button>
         {showForm &&(
           <form>
+            <h1>Address:</h1><input type="text" name="address" onChange={handleChange}></input>
             <h1> Price$:</h1> <input type="number" name="price" onChange={handleChange}/>
             <h1>Title</h1> <input type="text" name="title" onChange={handleChange}/>
             <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>

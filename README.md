@@ -34,14 +34,14 @@ npm install
 npm run dev
 
 Status:
-MVP complete. Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
+Added Address field for creating parking spots. Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
 
 Planned future improvements include:
-• Address and location support
-• Google Maps integration
-• User authentication
-• UI and UX improvements
-• Deployment
+• Maps integration for viewing parking spot locations  
+• User authentication for managing personal listings and bookings  
+• Ability to edit parking spot listings  
+• Improved UI and UX design  
+• Deployment for public access
 
 Udai Chopra
 Computer Science Student – Wilfrid Laurier University
