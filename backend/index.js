@@ -44,6 +44,17 @@ app.post("/spots",async(req,res) => {
     return;
   }
 });
+app.delete("/bookings/:bookid",async(req,res)=>{
+  const bookid=req.params.bookid
+  const {data,error}=await supabase.from("bookings").delete().eq("bookid",bookid).select();
+  if (error){
+    return res.status(500).json({error:error.message});
+  }
+  else{
+    return res.status(200).json(data[0])
+  }
+
+});
 app.get("/bookings",async(req,res)=>{
   const {data,error}= await supabase.from("bookings").select("*");
   if (error){

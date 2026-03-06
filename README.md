@@ -10,6 +10,7 @@ Current Features
 • Create and list parking spots
 • View all available parking spots
 • Book parking spots with fullname, start time, and end time
+• Cancel Exisitng bookings
 • Prevent overlapping bookings using backend validation 
 • Persistent storage using Supabase PostgreSQL database
 • View booking history
@@ -33,13 +34,12 @@ npm install
 npm run dev
 
 Status:
-The application now uses a PostgreSQL database instead of temporary in-memory storage. Core functionality including spot creation, booking system, overlap validation, and persistent storage is fully implemented.
+MVP complete. Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
 
 Planned future improvements include:
 • Address and location support
 • Google Maps integration
 • User authentication
-• Ability to cancel bookings
 • UI and UX improvements
 • Deployment
 

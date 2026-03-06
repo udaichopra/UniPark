@@ -90,12 +90,34 @@ function App() {
     })
 
   }
+  const [cancelBookingMsg,setcancelBookingMsg]= useState("")
+
 
   useEffect(()=>{
     fetch("http://127.0.0.1:5050/bookings")
     .then(response=>response.json())
     .then (data=>setBookings(data))
   },[])
+  
+  const cancelBooking=(bookid)=>{
+    fetch(`http://127.0.0.1:5050/bookings/${bookid}`,{
+      method:"DELETE"
+    })
+    .then(response=>response.json())
+    .then((data=>{
+      if (data.error){
+      setcancelBookingMsg(data.error)
+      return;
+    }
+    else{
+      setBookings(prevlist=>prevlist.filter(b=>b.bookid!==data.bookid))//update frontend bookings list so we dont show deleted spot in my bookings
+      setcancelBookingMsg("Booking deleted")
+      return;
+    }
+
+  }));
+
+  }
   
   
 
@@ -133,13 +155,19 @@ function App() {
       <div>
         <h1>My Bookings:</h1>
         {bookings.map(booking=>(
-          <h1 key={booking.bookid}>Parking Id:{booking.spot_id}, Booking id: {booking.bookid},
-          Parking Starts at :{booking.start_time}, Parking ends at: {booking.end_time} Fullname: {booking.fullname} </h1>
+          <div key={booking.bookid}>
+            <h1>Parking Id:{booking.spot_id}, Booking id: {booking.bookid},Parking Starts at :{booking.start_time}, Parking ends at: {booking.end_time} Fullname: {booking.fullname} </h1>
+            <button type="button" onClick={()=>cancelBooking(booking.bookid)}>Cancel this booking</button>
+          </div>
         ))}
-        
+        {cancelBookingMsg&&(
+          <h1>{cancelBookingMsg}</h1>
+          
+        )}
+     
       </div>
       {submitForm && (
-        <h1>{submitMessage}</h1>
+        <h1>{submitMessage}</h1> 
       )}
       {!submitForm && (
         <h1>{submitMessage}</h1>
