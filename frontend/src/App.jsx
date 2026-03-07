@@ -63,7 +63,7 @@ function App() {
     const value=event.target.value
     setBookDetails({...bookdetails,[name]:value})
   }
-  const handleBook=(spotId,address)=>{
+  const handleBook=(spotId)=>{
     setBookingSpotId(spotId)
     setBookDetails({...bookdetails,id:spotId})
     setbooksubmitMsg("")
@@ -80,7 +80,6 @@ function App() {
         setbooksubmitMsg(data.error)
       }
       else{
-        const newBooking=data
         setBookings([...bookings,data])
         setBookDetails({fullname:"", id:"", bookid:null, startTime:"", endTime:""})
         setbooksubmitMsg("Booking successfully added.")
@@ -123,57 +122,80 @@ function App() {
 
 
   return (
-    <div>
-      <h1>Available Parking Spots</h1>
+    //Show available parking spots, with a book button for each spot, when book button is clicked, show a form to fill in booking details and submit the booking
+    <div className="page-container">
+      <h2>Available Parking Spots</h2>
       {spots.map(spot=>(
-        <div key={spot.id}>
-        <h1> id: {spot.id},address: {spot.address}, Price: {spot.price}$, Title: {spot.title}</h1>
+        <div className="spot-card"
+        key={spot.id}>
+        <h3>Title: {spot.title}</h3>
+        <h3> Address: {spot.address}</h3>
+        <h3> Price: {spot.price}$</h3>
+        <h3> Id: {spot.id}</h3>
         <button type="button" onClick={()=>handleBook(spot.id)}>Book This Spot</button>
         {bookingSpotId==spot.id &&(
           <form>
-            <h1>Full name: </h1> <input type="text" name="fullname" onChange={handleBookForm}/>
-            <h1>Parking start time</h1> <input type="datetime-local" name="startTime" onChange={handleBookForm}/>
-            <h1>Parking end time</h1> <input type="datetime-local" name="endTime" onChange={handleBookForm}/>
+            <h3>Full name: </h3> <input type="text" name="fullname" onChange={handleBookForm}/>
+            <h3>Parking start time</h3> <input type="datetime-local" name="startTime" onChange={handleBookForm}/>
+            <h3>Parking end time</h3> <input type="datetime-local" name="endTime" onChange={handleBookForm}/>
             <button type="button" onClick={submitBooking}>Submit Booking</button>
+            <h3>{booksubmitMsg}</h3>
           </form>
         )}
         </div>
         ))}
-      <h1>{booksubmitMsg}</h1>
+      
+      
+      {/*form to create a new parking spot,
+      only shown when create spot button is clicked*/}
 
-      <div>
+
+      <h2>List your own parking spot here</h2>
+      <div className="spot-card">
         <button onClick={handleClick}>Create Spot</button>
         {showForm &&(
           <form>
-            <h1>Address:</h1><input type="text" name="address" onChange={handleChange}></input>
-            <h1> Price$:</h1> <input type="number" name="price" onChange={handleChange}/>
-            <h1>Title</h1> <input type="text" name="title" onChange={handleChange}/>
+            <h3>Address:</h3><input type="text" name="address" onChange={handleChange}></input>
+            <h3> Price$:</h3> <input type="number" name="price" onChange={handleChange}/>
+            <h3>Title</h3> <input type="text" name="title" onChange={handleChange}/>
+            <h3> </h3>
             <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>
             </form>
-    )} 
+        )}
+        {submitForm && (
+        <h3>{submitMessage}</h3>
+        )}
+        {!submitForm && (
+          <h3>{submitMessage}</h3>
+        )}
+
+
+
+      {/*Show my bookings section, where user 
+      can see all their bookings and cancel them*/}
+
+
       </div>
-
-
+      <h2>My Bookings:</h2>
       <div>
-        <h1>My Bookings:</h1>
         {bookings.map(booking=>(
-          <div key={booking.bookid}>
-            <h1>Parking Id:{booking.spot_id}, Booking id: {booking.bookid},Parking Starts at :{booking.start_time}, Parking ends at: {booking.end_time} Fullname: {booking.fullname} </h1>
+          <div className="booking-card" key={booking.bookid}>
+            <h3>Parking Id:{booking.spot_id}</h3>
+            <h3>Booking id: {booking.bookid}</h3>
+            <h3>Parking Starts at : {new Date(booking.start_time).toLocaleString(undefined, {
+              dateStyle: "medium",timeStyle: "short"})}</h3>
+            <h3>Parking ends at: {new Date(booking.end_time).toLocaleString(undefined, {
+              dateStyle: "medium",timeStyle: "short"})}</h3>
+            <h3>Fullname: {booking.fullname}</h3>
             <button type="button" onClick={()=>cancelBooking(booking.bookid)}>Cancel this booking</button>
           </div>
         ))}
         {cancelBookingMsg&&(
-          <h1>{cancelBookingMsg}</h1>
+          <h3>{cancelBookingMsg}</h3>
           
         )}
      
       </div>
-      {submitForm && (
-        <h1>{submitMessage}</h1> 
-      )}
-      {!submitForm && (
-        <h1>{submitMessage}</h1>
-      )}
     </div>
   
   );

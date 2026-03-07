@@ -40,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+.spot-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+}
+.booking-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+}
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
