@@ -9,6 +9,8 @@ create table spots (
   created_at timestamptz default now()
 );
 
+ALTER TABLE spots ADD COLUMN lat double precision NOT NULL;
+ALTER TABLE spots ADD COLUMN lon double precision NOT NULL;
 
 create table bookings (
   bookid bigserial primary key,

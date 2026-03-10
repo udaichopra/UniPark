@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+L.Marker.prototype.options.icon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 
 function App() {
   const [spots, setSpots]=useState([])
@@ -123,6 +135,29 @@ function App() {
 
   return (
     //Show available parking spots, with a book button for each spot, when book button is clicked, show a form to fill in booking details and submit the booking
+    <div>
+    <div className="map-container">
+      <MapContainer
+      center={[43.47408332564644, -80.5294431606201]}
+      zoom={13}
+      style={{ height: "400px", width: "100%" }}
+      >
+        {spots.map(spot=>(
+          <Marker key={spot.id} position={[Number(spot.lat),Number(spot.lon)]}>
+            <Popup>
+              <h3>Title: {spot.title}</h3>
+              <h3>{spot.price}$</h3>
+              <h3> Address: {spot.address}</h3>
+            </Popup>
+          </Marker>
+        ))}
+        <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      </MapContainer>
+    </div>
+    
     <div className="page-container">
       <h2>Available Parking Spots</h2>
       {spots.map(spot=>(
@@ -197,7 +232,8 @@ function App() {
      
       </div>
     </div>
-  
+
+  </div>
   );
 
 }

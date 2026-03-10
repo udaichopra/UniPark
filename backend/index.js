@@ -44,7 +44,19 @@ app.post("/spots",async(req,res) => {
     return;
   }
   else{
-    const newSpot= {address: address.trim(), price: price, title: title.trim()};//create an object for newspot created
+    const geoaddress=encodeURIComponent(req.body.address);
+    const response=await fetch(`https://nominatim.openstreetmap.org/search?q=${geoaddress}&format=json&limit=1`);
+    const geodata= await response.json();
+    if (!response.ok){
+      return res.status(500).json({error:geodata.error.message})
+    }
+    else if (geodata.length===0){
+      return res.status(400).json({error:"Geocoding failed. Please check the address and try again."});
+
+    }
+    const lat=geodata[0].lat;
+    const lon=geodata[0].lon;
+    const newSpot= {lat:lat, lon:lon , address: address.trim(), price: price, title: title.trim()};//create an object for newspot created
     const {data,error}= await supabase.from("spots").insert(newSpot).select();
     if (error){
       return res.status(500).json({error:error.message});

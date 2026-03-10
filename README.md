@@ -14,10 +14,12 @@ Current Features
 • Prevent overlapping bookings using backend validation 
 • Persistent storage using Supabase PostgreSQL database
 • View booking history
+• Interactive map displaying parking spot locations
+• Parking spots shown as markers using Leaflet
 
 
 Tech Stack:
-Frontend: React, JavaScript
+Frontend: React, JavaScript, Leaflet
 Backend: Node.js, Express
 Database: Supabase, PostgreSQL
 Tools: Git, GitHub, Vscode
@@ -34,10 +36,10 @@ npm install
 npm run dev
 
 Status:
-Added Address field for creating parking spots. Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
+Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
 
 Planned future improvements include:
-• Maps integration for viewing parking spot locations  
+• Improved Maps integration
 • User authentication for managing personal listings and bookings  
 • Ability to edit parking spot listings  
 • Improved UI and UX design  

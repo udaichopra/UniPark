@@ -57,3 +57,6 @@
   margin: 0 auto;
   padding: 24px;
 }
+.map-container {
+  height: 400px;
+}
