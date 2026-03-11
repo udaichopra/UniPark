@@ -60,3 +60,12 @@
 .map-container {
   height: 400px;
 }
+.header {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  border-bottom: 1px solid #eee;
+}
+.logo {
+  height: 500px;
+}

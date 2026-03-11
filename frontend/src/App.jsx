@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import logo from "./assets/uniparklogo.png"
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: markerIcon,
@@ -127,6 +128,9 @@ function App() {
   return (
     //Show available parking spots, with a book button for each spot, when book button is clicked, show a form to fill in booking details and submit the booking
     <div>
+      <div className="header">
+        <img src={logo} alt="UniPark Logo" className="logo"/>
+      </div>
       <div className="map-container">
         <MapContainer
           center={[43.47408332564644, -80.5294431606201]}
