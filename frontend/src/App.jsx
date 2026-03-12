@@ -124,109 +124,167 @@ function App() {
         }
       }));
   }
+  const [session, setSession] = useState(null)
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session)
+    }
+    getSession();
+
+  }, [])
+  const [signinform, setSigninform] = useState(false)
+  const signin = () => {
+    setSigninform(prev=>!prev)
+  }
+  const [signindetails, setSignindetails] = useState({ email: "", password: "" })
+
+  const handleSignin = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+    setSignindetails({ ...signindetails, [name]: value });
+  }
+  const [signinmessage, setSigninmessage] = useState("")
+  const submitSignin = async () => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email: signindetails.email, password: signindetails.password });
+    if (error) {
+      setSigninmessage(error.message);
+      return;
+    }
+    setSession(data.session);
+    setSignindetails({ email: "", password: "" })
+    setSigninform(false)
+
+  }
+
 
   return (
     //Show available parking spots, with a book button for each spot, when book button is clicked, show a form to fill in booking details and submit the booking
     <div>
       <div className="header">
-        <img src={logo} alt="UniPark Logo" className="logo"/>
+        <img src={logo} alt="UniPark Logo" className="logo" />
       </div>
-      <div className="map-container">
-        <MapContainer
-          center={[43.47408332564644, -80.5294431606201]}
-          zoom={13}
-          style={{ height: "400px", width: "100%" }}
-        >
-          {spots.map(spot => (
-            <Marker key={spot.id} position={[Number(spot.lat), Number(spot.lon)]}>
-              <Popup>
-                <h3>Title: {spot.title}</h3>
-                <h3>{spot.price}$</h3>
-                <h3> Address: {spot.address}</h3>
-                <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
-              </Popup>
-            </Marker>
-          ))}
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-        </MapContainer>
-      </div>
-
-      <div className="page-container">
-        <h2>Available Parking Spots</h2>
-        {spots.map(spot => (
-          <div className="spot-card"
-            key={spot.id}>
-            <h3>Title: {spot.title}</h3>
-            <h3> Address: {spot.address}</h3>
-            <h3> Price: {spot.price}$</h3>
-            <h3> Id: {spot.id}</h3>
-            <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
-            {bookingSpotId == spot.id && (
+      <div>
+        {!session && (
+          <div>
+            <button type="button" onClick={signin}>Sign in</button>
+            {signinform && (
               <form>
-                <h3>Full name: </h3> <input type="text" name="fullname" onChange={handleBookForm} />
-                <h3>Parking start time</h3> <input type="datetime-local" name="startTime" onChange={handleBookForm} />
-                <h3>Parking end time</h3> <input type="datetime-local" name="endTime" onChange={handleBookForm} />
-                <button type="button" onClick={submitBooking}>Submit Booking</button>
-                <h3>{booksubmitMsg}</h3>
+                <h3>Email: </h3> <input type="email" name="email" onChange={handleSignin}></input>
+                <h3>Password: </h3> <input type="password" name="password" onChange={handleSignin}></input>
+                <button type="button" onClick={submitSignin}>Submit Sign in</button>
+                {signinmessage && (
+                  <h3>{signinmessage}</h3>
+                )}
               </form>
             )}
           </div>
-        ))}
+
+        )}
+      </div>
+      {session && (
+        <div>
+          <div className="map-container">
+            <MapContainer
+              center={[43.47408332564644, -80.5294431606201]}
+              zoom={13}
+              style={{ height: "400px", width: "100%" }}
+            >
+              {spots.map(spot => (
+                <Marker key={spot.id} position={[Number(spot.lat), Number(spot.lon)]}>
+                  <Popup>
+                    <h3>Title: {spot.title}</h3>
+                    <h3>{spot.price}$</h3>
+                    <h3> Address: {spot.address}</h3>
+                    <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
+                  </Popup>
+                </Marker>
+              ))}
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            </MapContainer>
+          </div>
 
 
-        {/*form to create a new parking spot,
+          <div className="page-container">
+            <h2>Available Parking Spots</h2>
+            {spots.map(spot => (
+              <div className="spot-card"
+                key={spot.id}>
+                <h3>Title: {spot.title}</h3>
+                <h3> Address: {spot.address}</h3>
+                <h3> Price: {spot.price}$</h3>
+                <h3> Id: {spot.id}</h3>
+                <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
+                {bookingSpotId == spot.id && (
+                  <form>
+                    <h3>Full name: </h3> <input type="text" name="fullname" onChange={handleBookForm} />
+                    <h3>Parking start time</h3> <input type="datetime-local" name="startTime" onChange={handleBookForm} />
+                    <h3>Parking end time</h3> <input type="datetime-local" name="endTime" onChange={handleBookForm} />
+                    <button type="button" onClick={submitBooking}>Submit Booking</button>
+                    <h3>{booksubmitMsg}</h3>
+                  </form>
+                )}
+              </div>
+            ))}
+
+
+            {/*form to create a new parking spot,
       only shown when create spot button is clicked*/}
 
 
-        <h2>List your own parking spot here</h2>
-        <div className="spot-card">
-          <button onClick={handleClick}>Create Spot</button>
-          {showForm && (
-            <form>
-              <h3>Address:</h3><input type="text" name="address" onChange={handleChange}></input>
-              <h3> Price$:</h3> <input type="number" name="price" onChange={handleChange} />
-              <h3>Title</h3> <input type="text" name="title" onChange={handleChange} />
-              <h3> </h3>
-              <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>
-            </form>
-          )}
-          {submitForm && (
-            <h3>{submitMessage}</h3>
-          )}
+            <h2>List your own parking spot here</h2>
+            <div className="spot-card">
+              <button onClick={handleClick}>Create Spot</button>
+              {showForm && (
+                <form>
+                  <h3>Address:</h3><input type="text" name="address" onChange={handleChange}></input>
+                  <h3> Price$:</h3> <input type="number" name="price" onChange={handleChange} />
+                  <h3>Title</h3> <input type="text" name="title" onChange={handleChange} />
+                  <h3> </h3>
+                  <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>
+                </form>
+              )}
+              {submitForm && (
+                <h3>{submitMessage}</h3>
+              )}
 
 
 
-          {/*Show my bookings section, where user 
+              {/*Show my bookings section, where user 
       can see all their bookings and cancel them*/}
 
 
-        </div>
-        <h2>My Bookings:</h2>
-        <div>
-          {bookings.map(booking => (
-            <div className="booking-card" key={booking.bookid}>
-              <h3>Parking Id:{booking.spot_id}</h3>
-              <h3>Booking id: {booking.bookid}</h3>
-              <h3>Parking Starts at : {new Date(booking.start_time).toLocaleString(undefined, {
-                dateStyle: "medium", timeStyle: "short"
-              })}</h3>
-              <h3>Parking ends at: {new Date(booking.end_time).toLocaleString(undefined, {
-                dateStyle: "medium", timeStyle: "short"
-              })}</h3>
-              <h3>Fullname: {booking.fullname}</h3>
-              <button type="button" onClick={() => cancelBooking(booking.bookid)}>Cancel this booking</button>
             </div>
-          ))}
-          {cancelBookingMsg && (
-            <h3>{cancelBookingMsg}</h3>
+            <h2>My Bookings:</h2>
+            <div>
+              {bookings.map(booking => (
+                <div className="booking-card" key={booking.bookid}>
+                  <h3>Parking Id:{booking.spot_id}</h3>
+                  <h3>Booking id: {booking.bookid}</h3>
+                  <h3>Parking Starts at : {new Date(booking.start_time).toLocaleString(undefined, {
+                    dateStyle: "medium", timeStyle: "short"
+                  })}</h3>
+                  <h3>Parking ends at: {new Date(booking.end_time).toLocaleString(undefined, {
+                    dateStyle: "medium", timeStyle: "short"
+                  })}</h3>
+                  <h3>Fullname: {booking.fullname}</h3>
+                  <button type="button" onClick={() => cancelBooking(booking.bookid)}>Cancel this booking</button>
+                </div>
+              ))}
+              {cancelBookingMsg && (
+                <h3>{cancelBookingMsg}</h3>
 
-          )}
+              )}
 
+            </div>
+
+          </div>
         </div>
-      </div>
+      )}
+
 
     </div>
   );
