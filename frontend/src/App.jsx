@@ -8,6 +8,7 @@ import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import logo from "./assets/uniparklogo.png"
+import { supabase } from "./supabaseClient";
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: markerIcon,
@@ -135,7 +136,7 @@ function App() {
   }, [])
   const [signinform, setSigninform] = useState(false)
   const signin = () => {
-    setSigninform(prev=>!prev)
+    setSigninform(prev => !prev)
   }
   const [signindetails, setSignindetails] = useState({ email: "", password: "" })
 
@@ -154,6 +155,35 @@ function App() {
     setSession(data.session);
     setSignindetails({ email: "", password: "" })
     setSigninform(false)
+
+  }
+  const [signupform, setSignupform] = useState(false)
+  const signup = () => {
+    setSignupform(prev => !prev)
+  }
+  const [signupdetails, setSignupdetails] = useState({ email: "", password: "" });
+
+  const handleSignup = (event) => {
+    const name = event.target.name
+    const value = event.target.value
+    setSignupdetails({ ...signupdetails, [name]: value })
+  }
+  const [signupmsg, setSignupmsg] = useState("")
+
+  const submitSignup = async () => {
+    const { data, error } = await supabase.auth.signUp({ email: signupdetails.email, password: signupdetails.password })
+    if (error) {
+      setSignupmsg(error.message)
+      return;
+    }
+    if (data.session) {
+      setSession(data.session)
+      setSignupdetails({ email: "", password: "" })
+      setSignupform(false)
+    }
+    else{
+      setSignupmsg("A email has been sent to verify your account")
+    }
 
   }
 
@@ -175,6 +205,17 @@ function App() {
                 <button type="button" onClick={submitSignin}>Submit Sign in</button>
                 {signinmessage && (
                   <h3>{signinmessage}</h3>
+                )}
+              </form>
+            )}
+            <button type="button" onClick={signup}>Sign up</button>
+            {signupform && (
+              <form>
+                <h3>Email: </h3><input type="email" name="email" onChange={handleSignup}></input>
+                <h3>Password: </h3><input type="password" name="password" onChange={handleSignup}></input>
+                <button type="button" onClick={submitSignup}>Submit sign up</button>
+                {signupmsg && (
+                  <h3>{signupmsg}</h3>
                 )}
               </form>
             )}

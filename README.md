@@ -16,6 +16,7 @@ Current Features
 • View booking history
 • Interactive map displaying parking spot locations
 • Parking spots shown as markers using Leaflet
+• User authentication using Supabase (email/password sign up and sign in)
 
 
 Tech Stack:
