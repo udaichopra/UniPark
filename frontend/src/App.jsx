@@ -186,6 +186,10 @@ function App() {
     }
 
   }
+  const handleSignout=async()=>{
+    await supabase.auth.signOut()
+    setSession(null)
+  }
 
 
   return (
@@ -225,6 +229,8 @@ function App() {
       </div>
       {session && (
         <div>
+          <button type="button" onClick={handleSignout}>Sign out</button>
+          <h3> </h3>
           <div className="map-container">
             <MapContainer
               center={[43.47408332564644, -80.5294431606201]}
