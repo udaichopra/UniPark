@@ -11,118 +11,130 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
-app.get("/spots", async(req, res) => {
-  const {data,error}= await supabase.from("spots").select("*");
-  if (error){
-    res.status(400).json({error:error.message});
+app.get("/spots", async (req, res) => {
+  const { data, error } = await supabase.from("spots").select("*");
+  if (error) {
+    res.status(400).json({ error: error.message });
     return;
   }
   return res.json(data);
 });
-app.post("/spots",async(req,res) => {
-  const price=Number(req.body.price)
-  const title=req.body.title
-  const address=req.body.address
-  if (typeof address !== "string"){
-    res.status(400).json({error: "The address is not valid"});
+app.post("/spots", async (req, res) => {
+  const price = Number(req.body.price)
+  const title = req.body.title
+  const address = req.body.address
+  const owner_id = req.body.owner_id
+  if (typeof address !== "string") {
+    res.status(400).json({ error: "The address is not valid" });
     return;
   }
-  else if (address.trim().length===0){
-    res.status(400).json({error:"Adress is empty"});
+  else if (address.trim().length === 0) {
+    res.status(400).json({ error: "Adress is empty" });
     return;
   }
-  else if (Number.isNaN(price) || price <= 0){
-    res.status(400).json({error: "Price is not valid"});
+  else if (Number.isNaN(price) || price <= 0) {
+    res.status(400).json({ error: "Price is not valid" });
     return;
   }
-  else if (typeof title !== "string"){
-    res.status(400).json({error: "Title must be a string"});
+  else if (typeof title !== "string") {
+    res.status(400).json({ error: "Title must be a string" });
     return;
   }
-  else if (title.trim().length===0){
-    res.status(400).json({error: "Title is empty"});
+  else if (title.trim().length === 0) {
+    res.status(400).json({ error: "Title is empty" });
     return;
   }
-  else{
-    const geoaddress=encodeURIComponent(req.body.address);
-    const response=await fetch(`https://nominatim.openstreetmap.org/search?q=${geoaddress}&format=json&limit=1`);
-    const geodata= await response.json();
-    if (!response.ok){
-      return res.status(500).json({error:geodata.error.message})
-    }
-    else if (geodata.length===0){
-      return res.status(400).json({error:"Geocoding failed. Please check the address and try again."});
+  else if (owner_id == null) {
+    res.status(400).json({ error: "Database error" });
+    return;
+  }
+  else if (typeof owner_id !== "string" || owner_id.trim().length == 0) {
+    return res.status(400).json({ error: "Owner id is missing or invalid" });
 
+  }
+  else {
+    const geoaddress = encodeURIComponent(req.body.address);
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${geoaddress}&format=json&limit=1`, {
+      headers: {
+        "User-Agent": "UniPark/1.0"
+      }
+    });
+    if (!response.ok) {
+      return res.status(500).json({ error: "geocoding service error" });
     }
-    const lat=geodata[0].lat;
-    const lon=geodata[0].lon;
-    const newSpot= {lat:lat, lon:lon , address: address.trim(), price: price, title: title.trim()};//create an object for newspot created
-    const {data,error}= await supabase.from("spots").insert(newSpot).select();
-    if (error){
-      return res.status(500).json({error:error.message});
+    const geodata = await response.json();
+    if (geodata.length === 0) {
+      return res.status(400).json({ error: "Geocoding failed. Please check the address and try again." });
+    }
+    const lat = geodata[0].lat;
+    const lon = geodata[0].lon;
+    const newSpot = { owner_id: owner_id, lat: lat, lon: lon, address: address.trim(), price: price, title: title.trim() };//create an object for newspot created
+    const { data, error } = await supabase.from("spots").insert(newSpot).select();
+    if (error) {
+      return res.status(500).json({ error: error.message });
     }
     res.status(201).json(data[0]);
     return;
   }
 });
-app.delete("/bookings/:bookid",async(req,res)=>{
-  const bookid=req.params.bookid
-  const {data,error}=await supabase.from("bookings").delete().eq("bookid",bookid).select();
-  if (error){
-    return res.status(500).json({error:error.message});
+app.delete("/bookings/:bookid", async (req, res) => {
+  const bookid = req.params.bookid
+  const { data, error } = await supabase.from("bookings").delete().eq("bookid", bookid).select();
+  if (error) {
+    return res.status(500).json({ error: error.message });
   }
-  else{
+  else {
     return res.status(200).json(data[0])
   }
 
 });
-app.get("/bookings",async(req,res)=>{
-  const {data,error}= await supabase.from("bookings").select("*");
-  if (error){
-    res.status(400).json({error:error.message});
+app.get("/bookings", async (req, res) => {
+  const { data, error } = await supabase.from("bookings").select("*");
+  if (error) {
+    res.status(400).json({ error: error.message });
     return;
   }
   return res.json(data);
 })
-app.post("/bookings",async(req,res)=>{
-  const fullname=req.body.fullname
-  const id= Number(req.body.id)
-  const startTime=new Date(req.body.startTime)
-  const endTime=new Date(req.body.endTime)
-  if (Number.isNaN(id)||id<=0){
-    return res.status(400).json({error: "spot id is not valid"});
+app.post("/bookings", async (req, res) => {
+  const fullname = req.body.fullname
+  const id = Number(req.body.id)
+  const startTime = new Date(req.body.startTime)
+  const endTime = new Date(req.body.endTime)
+  if (Number.isNaN(id) || id <= 0) {
+    return res.status(400).json({ error: "spot id is not valid" });
   }
-  else if (typeof fullname !=="string"){
-    return res.status(400).json({error: "Not a valid name"});
+  else if (typeof fullname !== "string") {
+    return res.status(400).json({ error: "Not a valid name" });
   }
-  else if (fullname.trim().length===0){
-    return res.status(400).json({error:"Fullname field is empty"});
+  else if (fullname.trim().length === 0) {
+    return res.status(400).json({ error: "Fullname field is empty" });
   }
-  else if (isNaN(startTime)||isNaN(endTime)){
-    return res.status(400).json({error:"Invalid date format"});
+  else if (isNaN(startTime) || isNaN(endTime)) {
+    return res.status(400).json({ error: "Invalid date format" });
   }
   else if (startTime >= endTime) {
     return res.status(400).json({ error: "End time must be after start time" });
-    
-  }
-  else{
-    const {data:existingBookings,error:fetchError}= await supabase.from("bookings").select("*").eq("spot_id",id)
-    if (fetchError){
-      return res.status(500).json({error:fetchError.message})
-    }
-    for(let i=0;i<existingBookings.length; i++){
-      const prevbooking=existingBookings[i];
-      const prevstartTime=new Date(prevbooking.start_time);
-      const prevendTime= new Date(prevbooking.end_time);
 
-      if (prevstartTime < endTime && prevendTime>startTime){
-        return res.status(400).json({error:"This spot is unavailble at the time you've selected"});
+  }
+  else {
+    const { data: existingBookings, error: fetchError } = await supabase.from("bookings").select("*").eq("spot_id", id)
+    if (fetchError) {
+      return res.status(500).json({ error: fetchError.message })
+    }
+    for (let i = 0; i < existingBookings.length; i++) {
+      const prevbooking = existingBookings[i];
+      const prevstartTime = new Date(prevbooking.start_time);
+      const prevendTime = new Date(prevbooking.end_time);
+
+      if (prevstartTime < endTime && prevendTime > startTime) {
+        return res.status(400).json({ error: "This spot is unavailble at the time you've selected" });
       }
     }
-    const submitBookingInput={spot_id:id,start_time:startTime,end_time: endTime ,fullname:fullname.trim()};
-    const {data,error}= await supabase.from("bookings").insert(submitBookingInput).select()
-    if (error){
-      return res.status(500).json({error:error.message});
+    const submitBookingInput = { spot_id: id, start_time: startTime, end_time: endTime, fullname: fullname.trim() };
+    const { data, error } = await supabase.from("bookings").insert(submitBookingInput).select()
+    if (error) {
+      return res.status(500).json({ error: error.message });
     }
     return res.status(201).json(data[0]);
   }

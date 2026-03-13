@@ -49,12 +49,13 @@ function App() {
     fetch("http://127.0.0.1:5050/spots", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(details)
+      body: JSON.stringify({ ...details, owner_id: session.user.id })
     })
       .then(response => response.json())
       .then(data => {
         if (data.error) {
           console.log(data.error)
+          setSubmitForm(true)
           setSubmitMessage(data.error)
         }
         else {
@@ -181,19 +182,24 @@ function App() {
       setSignupdetails({ email: "", password: "" })
       setSignupform(false)
     }
-    else{
+    else {
       setSignupmsg("A email has been sent to verify your account")
     }
 
   }
-  const handleSignout=async()=>{
+  const handleSignout = async () => {
     await supabase.auth.signOut()
     setSession(null)
   }
 
+  const mySpots = session ? spots.filter(spot => spot.owner_id === session.user.id) : [];
+  const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : [];
+
+
+
 
   return (
-    //Show available parking spots, with a book button for each spot, when book button is clicked, show a form to fill in booking details and submit the booking
+    
     <div>
       <div className="header">
         <img src={logo} alt="UniPark Logo" className="logo" />
@@ -237,7 +243,7 @@ function App() {
               zoom={13}
               style={{ height: "400px", width: "100%" }}
             >
-              {spots.map(spot => (
+              {availableSpots.map(spot => (
                 <Marker key={spot.id} position={[Number(spot.lat), Number(spot.lon)]}>
                   <Popup>
                     <h3>Title: {spot.title}</h3>
@@ -257,7 +263,7 @@ function App() {
 
           <div className="page-container">
             <h2>Available Parking Spots</h2>
-            {spots.map(spot => (
+            {availableSpots.map(spot => (
               <div className="spot-card"
                 key={spot.id}>
                 <h3>Title: {spot.title}</h3>
@@ -284,25 +290,38 @@ function App() {
 
             <h2>List your own parking spot here</h2>
             <div className="spot-card">
-              <button onClick={handleClick}>Create Spot</button>
+              <button type="button" onClick={handleClick}>Create Spot</button>
               {showForm && (
                 <form>
                   <h3>Address:</h3><input type="text" name="address" onChange={handleChange}></input>
                   <h3> Price$:</h3> <input type="number" name="price" onChange={handleChange} />
                   <h3>Title</h3> <input type="text" name="title" onChange={handleChange} />
                   <h3> </h3>
-                  <button type="button" onClick={handleSubmit}>Sumbit Parking Spot</button>
+                  <button type="button" onClick={handleSubmit}>Submit Parking Spot</button>
+                  {submitForm && (
+                    <h3>{submitMessage}</h3>
+                  )}
                 </form>
-              )}
-              {submitForm && (
-                <h3>{submitMessage}</h3>
+
               )}
 
+            </div>
+
+          
 
 
+
+            <h2>My Listed Parking spots:</h2>
+            <div>
+              {mySpots.map(myspot => (
+                <div className="spot-card" key={myspot.id}>
+                  <h3>Address:{myspot.address}</h3>
+                  <h3>Price: {myspot.price}</h3>
+                  <h3>Title: {myspot.title}</h3>
+                </div>
+              ))}
               {/*Show my bookings section, where user 
       can see all their bookings and cancel them*/}
-
 
             </div>
             <h2>My Bookings:</h2>
@@ -330,10 +349,11 @@ function App() {
 
           </div>
         </div>
-      )}
+      )
+      }
 
 
-    </div>
+    </div >
   );
 
 }

@@ -1,11 +1,12 @@
 # UniPark
-UniPark is a full stack parking spot booking application that allows users to list their own parking spots and book available spots for specific time ranges. The application is designed for university students who want to rent out unused parking spots or find more affordable parking options near campus.
+UniPark is a full-stack parking marketplace that allows users to list and book parking spots.  
+Users can create accounts, list their own parking spaces, and book available spots from other users.
 
 The system prevents overlapping bookings and uses a PostgreSQL database to ensure data integrity and persistent storage.
 
 This project was built to practice full-stack development using React, Express, and PostgreSQL.
 
-Current Features
+## Features
 
 • Create and list parking spots
 • View all available parking spots
@@ -17,15 +18,34 @@ Current Features
 • Interactive map displaying parking spot locations
 • Parking spots shown as markers using Leaflet
 • User authentication using Supabase (email/password sign up and sign in)
+• Users can view their own parking listings  
+• Users only see available spots that are not theirs
 
 
-Tech Stack:
-Frontend: React, JavaScript, Leaflet
-Backend: Node.js, Express
-Database: Supabase, PostgreSQL
-Tools: Git, GitHub, Vscode
+##Tech Stack:
 
-How to Run: 
+Frontend: 
+• React
+• JavaScript
+• Leaflet(maps)
+
+Backend:
+ • Node.js
+ • Express
+
+Database: 
+• Supabase
+• PostgreSQL
+
+APIs:
+• OpenStreetMap Nominatim (geocoding)
+
+Tools: 
+•Git
+•GitHub
+•Vscode
+
+##How to Run: 
 Backend:
 cd backend
 npm install
@@ -40,11 +60,12 @@ Status:
 Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
 
 Planned future improvements include:
-• Improved Maps integration
-• User authentication for managing personal listings and bookings  
-• Ability to edit parking spot listings  
-• Improved UI and UX design  
-• Deployment for public access
+• Allow users to delete their own parking listings  
+• Allow users to edit parking spot listings  
+• Restrict bookings so users only see their own bookings  
+• Improve map interaction and filtering  
+• Improve UI and UX design  
+• Deploy the application for public access
 
 Udai Chopra
 Computer Science Student – Wilfrid Laurier University
