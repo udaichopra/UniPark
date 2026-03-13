@@ -77,6 +77,16 @@ app.post("/spots", async (req, res) => {
     return;
   }
 });
+app.delete("/spots/:id",async (req,res)=>{
+  const id =req.params.id
+  const {data,error}= await supabase.from("spots").delete().eq("id",id).select()
+  if (error){
+    return res.status(500).json({error: error.message})
+  }
+  else{
+    return res.json(data[0])
+  }
+})
 app.delete("/bookings/:bookid", async (req, res) => {
   const bookid = req.params.bookid
   const { data, error } = await supabase.from("bookings").delete().eq("bookid", bookid).select();

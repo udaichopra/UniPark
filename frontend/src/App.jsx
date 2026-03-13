@@ -194,8 +194,24 @@ function App() {
 
   const mySpots = session ? spots.filter(spot => spot.owner_id === session.user.id) : [];
   const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : [];
+  const [spotdeletemsg,setSpotdeletemsg]=useState("")
+  const handleDelete=(id)=>{
+    fetch(`http://127.0.0.1:5050/spots/${id}`,{
+      method:"delete"
+    })
+      .then(response=>response.json())
+      .then (data=>{
+        if(data.error){
+          setSpotdeletemsg(data.error) 
+        }
+        else{
+          setSpots(prev=>prev.filter(spot=>spot.id!==data.id))
+          setSpotdeletemsg("spot deleted successfully")
 
-
+        }
+      })
+    }
+    
 
 
   return (
@@ -306,11 +322,6 @@ function App() {
               )}
 
             </div>
-
-          
-
-
-
             <h2>My Listed Parking spots:</h2>
             <div>
               {mySpots.map(myspot => (
@@ -318,8 +329,11 @@ function App() {
                   <h3>Address:{myspot.address}</h3>
                   <h3>Price: {myspot.price}</h3>
                   <h3>Title: {myspot.title}</h3>
+                  <button type="button" onClick={()=>handleDelete(myspot.id)} >Delete this listing</button>
+                  <h3>{spotdeletemsg}</h3>
                 </div>
               ))}
+              <h3>{spotdeletemsg}</h3>
               {/*Show my bookings section, where user 
       can see all their bookings and cancel them*/}
 
