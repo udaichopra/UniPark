@@ -21,6 +21,7 @@ This project was built to practice full-stack development using React, Express, 
 • Users can view their own parking listings  
 • Users only see available spots that are not theirs
 • Users only see their own bookings
+• Parking spot owners can see bookings made for their listed spots
 
 
 ##Tech Stack:
