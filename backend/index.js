@@ -111,6 +111,7 @@ app.post("/bookings", async (req, res) => {
   const id = Number(req.body.id)
   const startTime = new Date(req.body.startTime)
   const endTime = new Date(req.body.endTime)
+  const user_id=req.body.user_id
   if (Number.isNaN(id) || id <= 0) {
     return res.status(400).json({ error: "spot id is not valid" });
   }
@@ -127,6 +128,9 @@ app.post("/bookings", async (req, res) => {
     return res.status(400).json({ error: "End time must be after start time" });
 
   }
+  else if (typeof user_id!="string"||user_id.trim().length==0){
+    return res.status(400).json({error:"User id is missing or invalid" })
+  }
   else {
     const { data: existingBookings, error: fetchError } = await supabase.from("bookings").select("*").eq("spot_id", id)
     if (fetchError) {
@@ -141,7 +145,7 @@ app.post("/bookings", async (req, res) => {
         return res.status(400).json({ error: "This spot is unavailble at the time you've selected" });
       }
     }
-    const submitBookingInput = { spot_id: id, start_time: startTime, end_time: endTime, fullname: fullname.trim() };
+    const submitBookingInput = {user_id:user_id, spot_id: id, start_time: startTime, end_time: endTime, fullname: fullname.trim() };
     const { data, error } = await supabase.from("bookings").insert(submitBookingInput).select()
     if (error) {
       return res.status(500).json({ error: error.message });

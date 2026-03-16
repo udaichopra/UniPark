@@ -20,6 +20,7 @@ This project was built to practice full-stack development using React, Express, 
 • User authentication using Supabase (email/password sign up and sign in)
 • Users can view their own parking listings  
 • Users only see available spots that are not theirs
+• Users only see their own bookings
 
 
 ##Tech Stack:

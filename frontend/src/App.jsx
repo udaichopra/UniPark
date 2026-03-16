@@ -86,7 +86,7 @@ function App() {
   const [booksubmitMsg, setbooksubmitMsg] = useState("")
   const submitBooking = () => {
     fetch("http://127.0.0.1:5050/bookings", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(bookdetails)//send spot id, fullname, start and end time to backend as a req
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({...bookdetails,user_id:session.user.id})//send spot id, fullname, start and end time to backend as a req
     })
       .then(response => response.json())
       .then(data => {
@@ -195,6 +195,7 @@ function App() {
   const mySpots = session ? spots.filter(spot => spot.owner_id === session.user.id) : [];
   const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : [];
   const [spotdeletemsg,setSpotdeletemsg]=useState("")
+  
   const handleDelete=(id)=>{
     fetch(`http://127.0.0.1:5050/spots/${id}`,{
       method:"delete"
@@ -203,14 +204,21 @@ function App() {
       .then (data=>{
         if(data.error){
           setSpotdeletemsg(data.error) 
+          setTimeout(() => {
+            setSpotdeletemsg("")
+          }, 3000);
         }
         else{
           setSpots(prev=>prev.filter(spot=>spot.id!==data.id))
           setSpotdeletemsg("spot deleted successfully")
+          setTimeout(() => {
+            setSpotdeletemsg("")
+          }, 3000);
 
         }
       })
     }
+    const myBookings= session ? bookings.filter(booking=>booking.user_id===session.user.id):[];
     
 
 
@@ -330,7 +338,7 @@ function App() {
                   <h3>Price: {myspot.price}</h3>
                   <h3>Title: {myspot.title}</h3>
                   <button type="button" onClick={()=>handleDelete(myspot.id)} >Delete this listing</button>
-                  <h3>{spotdeletemsg}</h3>
+
                 </div>
               ))}
               <h3>{spotdeletemsg}</h3>
@@ -340,7 +348,7 @@ function App() {
             </div>
             <h2>My Bookings:</h2>
             <div>
-              {bookings.map(booking => (
+              {myBookings.map(booking => (
                 <div className="booking-card" key={booking.bookid}>
                   <h3>Parking Id:{booking.spot_id}</h3>
                   <h3>Booking id: {booking.bookid}</h3>
