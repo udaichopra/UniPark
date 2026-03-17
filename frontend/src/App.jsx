@@ -2,20 +2,14 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import logo from "./assets/uniparklogo.png"
 import { supabase } from "./supabaseClient";
-
-L.Marker.prototype.options.icon = L.icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+import MyBookings from "./components/MyBookings";
+import AuthSection from './components/AuthSection';
+import ShowMap from './components/ShowMap';
+import AvailableSpots from './components/AvailableSpots';
+import CreateSpot from './components/CreateSpot';
+import MySpots from './components/MySpots';
 
 function App() {
   const [spots, setSpots] = useState([])
@@ -219,175 +213,71 @@ function App() {
       })
   }
   const myBookings = session ? bookings.filter(booking => booking.user_id === session.user.id) : [];
-  
-    
-      return (
 
+
+  return (
+
+    <div>
+      <div className="header">
+        <img src={logo} alt="UniPark Logo" className="logo" />
+      </div>
+      <div>
+        {!session && (
+          <AuthSection
+            signinform={signinform}
+            signin={signin}
+            handleSignin={handleSignin}
+            submitSignin={submitSignin}
+            signinmessage={signinmessage}
+            signupform={signupform}
+            signup={signup}
+            handleSignup={handleSignup}
+            submitSignup={submitSignup}
+            signupmsg={signupmsg}
+          />
+        )}
+      </div>
+      {session && (
         <div>
-          <div className="header">
-            <img src={logo} alt="UniPark Logo" className="logo" />
+          <button type="button" onClick={handleSignout}>Sign out</button>
+          <h3> </h3>
+          <ShowMap
+            availableSpots={availableSpots}
+            handleBook={handleBook}
+          />
+          <div className="page-container">
+            <AvailableSpots
+              availableSpots={availableSpots}
+              handleBook={handleBook}
+              bookingSpotId={bookingSpotId}
+              handleBookForm={handleBookForm}
+              submitBooking={submitBooking}
+              booksubmitMsg={booksubmitMsg}
+            />
+            <CreateSpot
+              handleClick={handleClick}
+              showForm={showForm}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              submitForm={submitForm}
+              submitMessage={submitMessage}
+            />
+            <MySpots
+              mySpots={mySpots}
+              bookings={bookings}
+              handleDelete={handleDelete}
+              spotdeletemsg={spotdeletemsg}
+            />
+            <MyBookings
+              myBookings={myBookings}
+              cancelBooking={cancelBooking}
+              cancelBookingMsg={cancelBookingMsg}
+            />
           </div>
-          <div>
-            {!session && (
-              <div>
-                <button type="button" onClick={signin}>Sign in</button>
-                {signinform && (
-                  <form>
-                    <h3>Email: </h3> <input type="email" name="email" onChange={handleSignin}></input>
-                    <h3>Password: </h3> <input type="password" name="password" onChange={handleSignin}></input>
-                    <button type="button" onClick={submitSignin}>Submit Sign in</button>
-                    {signinmessage && (
-                      <h3>{signinmessage}</h3>
-                    )}
-                  </form>
-                )}
-                <button type="button" onClick={signup}>Sign up</button>
-                {signupform && (
-                  <form>
-                    <h3>Email: </h3><input type="email" name="email" onChange={handleSignup}></input>
-                    <h3>Password: </h3><input type="password" name="password" onChange={handleSignup}></input>
-                    <button type="button" onClick={submitSignup}>Submit sign up</button>
-                    {signupmsg && (
-                      <h3>{signupmsg}</h3>
-                    )}
-                  </form>
-                )}
-              </div>
-
-            )}
-          </div>
-          {session && (
-            <div>
-              <button type="button" onClick={handleSignout}>Sign out</button>
-              <h3> </h3>
-              <div className="map-container">
-                <MapContainer
-                  center={[43.47408332564644, -80.5294431606201]}
-                  zoom={13}
-                  style={{ height: "400px", width: "100%" }}
-                >
-                  {availableSpots.map(spot => (
-                    <Marker key={spot.id} position={[Number(spot.lat), Number(spot.lon)]}>
-                      <Popup>
-                        <h3>Title: {spot.title}</h3>
-                        <h3>{spot.price}$</h3>
-                        <h3> Address: {spot.address}</h3>
-                        <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
-                      </Popup>
-                    </Marker>
-                  ))}
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                </MapContainer>
-              </div>
-
-
-              <div className="page-container">
-                <h2>Available Parking Spots</h2>
-                {availableSpots.map(spot => (
-                  <div className="spot-card"
-                    key={spot.id}>
-                    <h3>Title: {spot.title}</h3>
-                    <h3> Address: {spot.address}</h3>
-                    <h3> Price: {spot.price}$</h3>
-                    <h3> Id: {spot.id}</h3>
-                    <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
-                    {bookingSpotId == spot.id && (
-                      <form>
-                        <h3>Full name: </h3> <input type="text" name="fullname" onChange={handleBookForm} />
-                        <h3>Parking start time</h3> <input type="datetime-local" name="startTime" onChange={handleBookForm} />
-                        <h3>Parking end time</h3> <input type="datetime-local" name="endTime" onChange={handleBookForm} />
-                        <button type="button" onClick={submitBooking}>Submit Booking</button>
-                        <h3>{booksubmitMsg}</h3>
-                      </form>
-                    )}
-                  </div>
-                ))}
-
-
-                {/*form to create a new parking spot,
-      only shown when create spot button is clicked*/}
-
-
-                <h2>List your own parking spot here</h2>
-                <div className="spot-card">
-                  <button type="button" onClick={handleClick}>Create Spot</button>
-                  {showForm && (
-                    <form>
-                      <h3>Address:</h3><input type="text" name="address" onChange={handleChange}></input>
-                      <h3> Price$:</h3> <input type="number" name="price" onChange={handleChange} />
-                      <h3>Title</h3> <input type="text" name="title" onChange={handleChange} />
-                      <h3> </h3>
-                      <button type="button" onClick={handleSubmit}>Submit Parking Spot</button>
-                      {submitForm && (
-                        <h3>{submitMessage}</h3>
-                      )}
-                    </form>
-
-                  )}
-
-                </div>
-                <h2>My Listed Parking spots:</h2>
-                <div>
-                  {mySpots.map(myspot => (
-                    <div className="spot-card" key={myspot.id}>
-                      <h3>Address:{myspot.address}</h3>
-                      <h3>Price: {myspot.price}</h3>
-                      <h3>Title: {myspot.title}</h3>
-                      <button type="button" onClick={() => handleDelete(myspot.id)} >Delete this listing</button>
-                      <h3>Bookings:</h3>
-                      {bookings.filter(booking=>booking.spot_id===myspot.id).map(booking=>(
-                        <div key={booking.bookid} className="spot-card">
-                        <h3>Fullname: {booking.fullname}</h3>
-                        <h3>Booking starts at:{new Date(booking.start_time).toLocaleString(undefined, {
-                        dateStyle: "medium", timeStyle: "short"
-                        })}</h3>
-                        <h3>Booking Ends at:{new Date(booking.end_time).toLocaleString(undefined, {
-                        dateStyle: "medium", timeStyle: "short"
-                        })}</h3>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                  <h3>{spotdeletemsg}</h3>
-                  {/*Show my bookings section, where user 
-      can see all their bookings and cancel them*/}
-
-                </div>
-                <h2>My Bookings:</h2>
-                <div>
-                  {myBookings.map(booking => (
-                    <div className="booking-card" key={booking.bookid}>
-                      <h3>Parking Id:{booking.spot_id}</h3>
-                      <h3>Booking id: {booking.bookid}</h3>
-                      <h3>Parking Starts at : {new Date(booking.start_time).toLocaleString(undefined, {
-                        dateStyle: "medium", timeStyle: "short"
-                      })}</h3>
-                      <h3>Parking ends at: {new Date(booking.end_time).toLocaleString(undefined, {
-                        dateStyle: "medium", timeStyle: "short"
-                      })}</h3>
-                      <h3>Fullname: {booking.fullname}</h3>
-                      <button type="button" onClick={() => cancelBooking(booking.bookid)}>Cancel this booking</button>
-                    </div>
-                  ))}
-                  {cancelBookingMsg && (
-                    <h3>{cancelBookingMsg}</h3>
-
-                  )}
-
-                </div>
-
-              </div>
-            </div>
-          )
-          }
-
-
-        </div >
-      );
-
-    }
-
+        </div>
+      )
+      }
+    </div >
+  );
+}
 export default App;
