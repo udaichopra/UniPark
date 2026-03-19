@@ -9,6 +9,15 @@ L.Marker.prototype.options.icon = L.icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
+function ResizeMap() {
+    const map = useMap()
+    useEffect(() => {
+        setTimeout(() => {
+            map.invalidateSize()
+        }, 100)
+    }, [map])
+    return null
+}
 export default function ShowMap({availableSpots,handleBook}) {
     return (
         <div className="map-container">

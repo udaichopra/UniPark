@@ -8,7 +8,6 @@ export default function AvailableSpots({availableSpots,handleBook,bookingSpotId,
                     <h3>Title: {spot.title}</h3>
                     <h3> Address: {spot.address}</h3>
                     <h3> Price: {spot.price}$</h3>
-                    <h3> Id: {spot.id}</h3>
                     <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
                     {bookingSpotId === spot.id && (
                         <form>

@@ -22,13 +22,16 @@ This project was built to practice full-stack development using React, Express, 
 • Users only see available spots that are not theirs
 • Users only see their own bookings
 • Parking spot owners can see bookings made for their listed spots
+• Tab-based dashboard navigation for a cleaner user experience
+• Improved UI layout and styling for a cleaner user experience
 
-### Code Structure Improvements
+## Code Structure Improvements
 • Refactored frontend into reusable React components  
 • Improved separation of concerns (App handles logic, components handle UI)  
-• Components include: AuthSection, MapSection, AvailableSpots, MySpots, MyBookings, CreateSpot  
+• Components include: AuthSection, ShowMap, AvailableSpots, MySpots, MyBookings, CreateSpot  
 
-##Tech Stack:
+
+## Tech Stack:
 
 Frontend: 
 • React
@@ -51,7 +54,7 @@ Tools:
 •GitHub
 •Vscode
 
-##How to Run: 
+## How to Run: 
 Backend:
 cd backend
 npm install
@@ -62,11 +65,10 @@ cd frontend
 npm install
 npm run dev
 
-Status:
-Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, and persistent storage using Supabase PostgreSQL
+## Status
+Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, persistent storage using Supabase PostgreSQL, reusable React component architecture, and tab-based dashboard navigation.
 
 Planned future improvements include:
-• Improve UI and UX design 
 • Improve map interaction and filtering   
 • Deploy the application for public access
 

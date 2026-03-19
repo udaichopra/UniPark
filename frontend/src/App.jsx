@@ -67,6 +67,7 @@ function App() {
 
   const [bookdetails, setBookDetails] = useState({ fullname: "", id: "", bookid: null, startTime: "", endTime: "" })//for current bookings details
 
+
   const handleBookForm = (event) => {
     const name = event.target.name
     const value = event.target.value
@@ -185,11 +186,9 @@ function App() {
     await supabase.auth.signOut()
     setSession(null)
   }
-
   const mySpots = session ? spots.filter(spot => spot.owner_id === session.user.id) : [];
   const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : [];
   const [spotdeletemsg, setSpotdeletemsg] = useState("")
-
   const handleDelete = (id) => {
     fetch(`http://127.0.0.1:5050/spots/${id}`, {
       method: "delete"
@@ -213,10 +212,8 @@ function App() {
       })
   }
   const myBookings = session ? bookings.filter(booking => booking.user_id === session.user.id) : [];
-
-
+  const [tab, setTab] = useState("bookspot");
   return (
-
     <div>
       <div className="header">
         <img src={logo} alt="UniPark Logo" className="logo" />
@@ -239,21 +236,29 @@ function App() {
       </div>
       {session && (
         <div>
-          <button type="button" onClick={handleSignout}>Sign out</button>
-          <h3> </h3>
-          <ShowMap
-            availableSpots={availableSpots}
-            handleBook={handleBook}
-          />
-          <div className="page-container">
-            <AvailableSpots
-              availableSpots={availableSpots}
-              handleBook={handleBook}
-              bookingSpotId={bookingSpotId}
-              handleBookForm={handleBookForm}
-              submitBooking={submitBooking}
-              booksubmitMsg={booksubmitMsg}
-            />
+          <div className="tab-bar">
+            <div className="tab-bar-inner">
+              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("bookspot")}>Book a Parking spot</button>
+              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("Mylistings")}>My Listings</button>
+              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("ListSpot")}>List your own parking space</button>
+              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("Mybookings")}>My Bookings</button>
+              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={handleSignout}>Sign out</button>
+            </div>
+          </div>
+          {tab === "bookspot" && (
+            <div>
+              <ShowMap availableSpots={availableSpots} handleBook={handleBook} />
+              <AvailableSpots
+                availableSpots={availableSpots}
+                handleBook={handleBook}
+                bookingSpotId={bookingSpotId}
+                handleBookForm={handleBookForm}
+                submitBooking={submitBooking}
+                booksubmitMsg={booksubmitMsg}
+              />
+            </div>
+          )}
+          {tab === "ListSpot" && (
             <CreateSpot
               handleClick={handleClick}
               showForm={showForm}
@@ -262,22 +267,26 @@ function App() {
               submitForm={submitForm}
               submitMessage={submitMessage}
             />
+          )}
+          {tab === "Mylistings" && (
             <MySpots
               mySpots={mySpots}
               bookings={bookings}
               handleDelete={handleDelete}
               spotdeletemsg={spotdeletemsg}
             />
+          )}
+          {tab === "Mybookings" && (
             <MyBookings
               myBookings={myBookings}
               cancelBooking={cancelBooking}
               cancelBookingMsg={cancelBookingMsg}
+              spots={spots}
             />
-          </div>
+          )}
         </div>
-      )
-      }
-    </div >
-  );
+      )}
+    </div>
+  )
 }
 export default App;
