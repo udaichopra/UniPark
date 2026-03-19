@@ -255,6 +255,7 @@ function App() {
                 handleBookForm={handleBookForm}
                 submitBooking={submitBooking}
                 booksubmitMsg={booksubmitMsg}
+                bookings={bookings}
               />
             </div>
           )}
