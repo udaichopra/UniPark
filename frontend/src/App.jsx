@@ -106,6 +106,10 @@ function App() {
   }, [])
 
   const cancelBooking = (bookid) => {
+    const confirmCancel=window.confirm("Are you sure you want to cancel this booking?")
+    if (!confirmCancel){
+      return
+    }
     fetch(`http://127.0.0.1:5050/bookings/${bookid}`, {
       method: "DELETE"
     })
@@ -191,6 +195,10 @@ function App() {
   const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : [];
   const [spotdeletemsg, setSpotdeletemsg] = useState("")
   const handleDelete = (id) => {
+    const confirmDelete=window.confirm("Are you sure you want to delete this spot")
+    if (!confirmDelete){
+      return
+    }
     fetch(`http://127.0.0.1:5050/spots/${id}`, {
       method: "delete"
     })
