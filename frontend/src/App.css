@@ -118,7 +118,7 @@ button {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
-  margin-top: 12px;
+  margin-top: px;
 }
 
 button:hover {
@@ -226,7 +226,14 @@ form {
     padding: 14px;
   }
 }
+.booking-form {
+  max-width: 400px;
+  margin: 0 auto; /* centers it */
+}
 
+.booking-form input {
+  width: 100%;
+}
 @media (max-width: 480px) {
   .session-layout {
     padding: 12px 0;

@@ -66,7 +66,7 @@ function App() {
   const [bookings, setBookings] = useState([])
 
   const [bookdetails, setBookDetails] = useState({ fullname: "", id: "", bookid: null, startTime: "", endTime: "" })//for current bookings details
-
+  const [bookForm, setBookForm] = useState(false)
 
   const handleBookForm = (event) => {
     const name = event.target.name
@@ -76,6 +76,7 @@ function App() {
   const handleBook = (spotId) => {
     setBookingSpotId(spotId)
     setBookDetails({ ...bookdetails, id: spotId })
+    setBookForm(prev=>!prev);
     setbooksubmitMsg("")
   }
   const [booksubmitMsg, setbooksubmitMsg] = useState("")
@@ -256,6 +257,8 @@ function App() {
                 submitBooking={submitBooking}
                 booksubmitMsg={booksubmitMsg}
                 bookings={bookings}
+                bookForm={bookForm}
+                setBookForm={setBookForm}
               />
             </div>
           )}
@@ -267,6 +270,7 @@ function App() {
               handleSubmit={handleSubmit}
               submitForm={submitForm}
               submitMessage={submitMessage}
+              setShowForm={setShowForm}
             />
           )}
           {tab === "Mylistings" && (

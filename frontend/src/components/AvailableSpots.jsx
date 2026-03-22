@@ -1,4 +1,4 @@
-export default function AvailableSpots({availableSpots,handleBook,bookingSpotId,handleBookForm,submitBooking,booksubmitMsg,bookings}) {
+export default function AvailableSpots({bookForm, setBookForm,availableSpots,handleBook,bookingSpotId,handleBookForm,submitBooking,booksubmitMsg,bookings}) {
     return (
         <div>
             <h2>Available Parking Spots</h2>
@@ -23,9 +23,9 @@ export default function AvailableSpots({availableSpots,handleBook,bookingSpotId,
                         ))}
                         </div>
                     )}
-                    <button type="button" onClick={() => handleBook(spot.id)}>Book This Spot</button>
-                    {bookingSpotId === spot.id && (
-                        <form>
+                    <button type="button" onClick={() => handleBook(spot.id)}>{bookForm ? "Cancel": "Book this spot"}</button>
+                    {bookingSpotId === spot.id && bookForm && (
+                        <form className="booking-form">
                             <h3>Full name: </h3> <input type="text" name="fullname" onChange={handleBookForm} />
                             <h3>Parking start time</h3> <input type="datetime-local" name="startTime" onChange={handleBookForm} />
                             <h3>Parking end time</h3> <input type="datetime-local" name="endTime" onChange={handleBookForm} />
