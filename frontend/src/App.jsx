@@ -15,6 +15,7 @@ function App() {
   const [spots, setSpots] = useState([])
   const [details, setDetails] = useState({ address: "", price: "", title: "" })
   const [showForm, setShowForm] = useState(false)
+  const API = import.meta.env.VITE_API_URL;
 
   const handleChange = (event) => {
     const name = event.target.name
@@ -29,7 +30,7 @@ function App() {
 
   //fetch spots list from backend when spots api is sent 
   useEffect(() => {
-    fetch("http://127.0.0.1:5050/spots")
+    fetch(`${API}/spots`)
       .then(response => response.json())
       .then(data => { setSpots(data); });
   }, [])
@@ -40,7 +41,7 @@ function App() {
 
   const handleSubmit = () => {
 
-    fetch("http://127.0.0.1:5050/spots", {
+    fetch(`${API}/spots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...details, owner_id: session.user.id })
@@ -81,7 +82,7 @@ function App() {
   }
   const [booksubmitMsg, setbooksubmitMsg] = useState("")
   const submitBooking = () => {
-    fetch("http://127.0.0.1:5050/bookings", {
+    fetch(`${API}/bookings`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...bookdetails, user_id: session.user.id })//send spot id, fullname, start and end time to backend as a req
     })
       .then(response => response.json())
@@ -100,7 +101,7 @@ function App() {
   }
   const [cancelBookingMsg, setcancelBookingMsg] = useState("")
   useEffect(() => {
-    fetch("http://127.0.0.1:5050/bookings")
+    fetch(`${API}/bookings`)
       .then(response => response.json())
       .then(data => setBookings(data))
   }, [])
@@ -110,7 +111,7 @@ function App() {
     if (!confirmCancel){
       return
     }
-    fetch(`http://127.0.0.1:5050/bookings/${bookid}`, {
+    fetch(`${API}/bookings/${bookid}`, {
       method: "DELETE"
     })
       .then(response => response.json())
@@ -199,7 +200,7 @@ function App() {
     if (!confirmDelete){
       return
     }
-    fetch(`http://127.0.0.1:5050/spots/${id}`, {
+    fetch(`${API}/spots/${id}`, {
       method: "delete"
     })
       .then(response => response.json())
