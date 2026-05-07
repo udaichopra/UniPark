@@ -3,6 +3,8 @@ export default function MyBookings({ myBookings, cancelBooking, cancelBookingMsg
         <div>
             <h2>My Bookings:</h2>
             <div>
+                {myBookings.length === 0 && 
+                <div style={{ textAlign: "center" }}>You've Made No bookings yet.</div>}
                 {myBookings.map(booking => {
                     const spot = spots.find(s => s.id === booking.spot_id)
                     return (

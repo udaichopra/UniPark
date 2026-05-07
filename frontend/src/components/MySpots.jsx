@@ -2,6 +2,9 @@ export default function MySpots({ mySpots, bookings, handleDelete, spotdeletemsg
     return (
         <div>
             <h2>My Listed Parking spots:</h2>
+            {mySpots.length === 0 && (
+                <div style={{ textAlign: "center" }}>You've Made No listings yet.</div>
+            )}
             {mySpots.map(myspot => {
                 const mySpotBookings= bookings.filter(booking=>booking.spot_id===myspot.id)
                 return(
