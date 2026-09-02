@@ -1,4 +1,9 @@
 # UniPark
+
+**Live demo:** [uni-park.vercel.app](https://uni-park.vercel.app/)
+
+> This project is currently paused (backend/database temporarily offline) but can be restored on request — feel free to reach out if you'd like to see it running live.
+
 UniPark is a full-stack parking marketplace that allows users to list and book parking spots.  
 Users can create accounts, list their own parking spaces, and book available spots from other users.
 
@@ -69,8 +74,7 @@ npm run dev
 Core functionality now includes parking spot creation, booking creation, booking cancellation, overlap validation, booking history, persistent storage using Supabase PostgreSQL, reusable React component architecture, and tab-based dashboard navigation.
 
 Planned future improvements include:
-• Improve map interaction and filtering   
-• Deploy the application for public access
+• Improve map interaction and filtering
 
 Udai Chopra
 Computer Science Student – Wilfrid Laurier University
