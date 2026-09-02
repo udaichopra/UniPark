@@ -1,23 +1,51 @@
-export default function CreateSpot({ handleClick,setShowForm, showForm, handleChange, handleSubmit, submitForm, submitMessage }) {
-    return (
-        <div>
-            <h2>List your own parking spot here</h2>
-            <div className="spot-card">
-                <button type="button" onClick={()=>setShowForm(prev=>!prev)}>{showForm?"Cancel":"Create Spot"}</button>
-                {showForm && (
-                    <form className="booking-form">
-                        <h3>Address:</h3><input type="text" name="address" onChange={handleChange}></input>
-                        <h3> Price$:</h3> <input type="number" name="price" onChange={handleChange} />
-                        <h3>Title</h3> <input type="text" name="title" onChange={handleChange} />
-                        <h3> </h3>
-                        <button type="button" onClick={handleSubmit}>Submit Parking Spot</button>
-                        {submitForm && (
-                            <h3>{submitMessage}</h3>
-                        )}
-                    </form>
+export default function CreateSpot({ showForm, setShowForm, handleChange, handleSubmit, submitForm, submitMessage }) {
+  return (
+    <section>
+      <h2 className="mb-4 text-center text-xl font-semibold text-ink">List your own parking spot</h2>
 
-                )}
-            </div>
-        </div>
-    )
+      <div className="mx-auto max-w-sm rounded-xl border border-edge bg-card p-5 text-center">
+        <button
+          type="button"
+          onClick={() => setShowForm(prev => !prev)}
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-strong"
+        >
+          {showForm ? "Cancel" : "Create spot"}
+        </button>
+
+        {showForm && (
+          <form className="mt-4 flex flex-col gap-2">
+            <input
+              type="text"
+              name="address"
+              placeholder="Address"
+              onChange={handleChange}
+              className="rounded-lg border border-edge bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Price per day ($)"
+              onChange={handleChange}
+              className="rounded-lg border border-edge bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            />
+            <input
+              type="text"
+              name="title"
+              placeholder="Title"
+              onChange={handleChange}
+              className="rounded-lg border border-edge bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="rounded-lg bg-accent py-2 text-sm font-medium text-white hover:bg-accent-strong"
+            >
+              Submit
+            </button>
+            {submitForm && <p className="text-sm text-muted">{submitMessage}</p>}
+          </form>
+        )}
+      </div>
+    </section>
+  );
 }

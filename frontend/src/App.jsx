@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import logo from "./assets/uniparklogo.png"
 import { supabase } from "./supabaseClient";
 import MyBookings from "./components/MyBookings";
@@ -11,10 +8,19 @@ import AvailableSpots from './components/AvailableSpots';
 import CreateSpot from './components/CreateSpot';
 import MySpots from './components/MySpots';
 
+const TABS = [
+  { key: "bookspot", label: "Browse spots" },
+  { key: "Mylistings", label: "My listings" },
+  { key: "ListSpot", label: "List a spot" },
+  { key: "Mybookings", label: "My bookings" },
+]
+
 function App() {
   const [spots, setSpots] = useState([])
   const [details, setDetails] = useState({ address: "", price: "", title: "" })
   const [showForm, setShowForm] = useState(false)
+  const [tab, setTab] = useState("bookspot")
+  const [authOpen, setAuthOpen] = useState(false)
   const API = import.meta.env.VITE_API_URL;
 
   const handleChange = (event) => {
@@ -24,15 +30,12 @@ function App() {
     setDetails({ ...details, [name]: value })
 
   }
-  const handleClick = () => {
-    setShowForm(true)
-  }
 
-  //fetch spots list from backend when spots api is sent 
+  //fetch spots list from backend when spots api is sent
   useEffect(() => {
     fetch(`${API}/spots`)
       .then(response => response.json())
-      .then(data => { setSpots(data); });
+      .then(data => { setSpots(Array.isArray(data) ? data : []); });
   }, [])
 
   const [submitMessage, setSubmitMessage] = useState("")
@@ -75,9 +78,13 @@ function App() {
     setBookDetails({ ...bookdetails, [name]: value })
   }
   const handleBook = (spotId) => {
+    if (!session) {
+      setAuthOpen(true)
+      return
+    }
     setBookingSpotId(spotId)
     setBookDetails({ ...bookdetails, id: spotId })
-    setBookForm(prev=>!prev);
+    setBookForm(prev => !prev);
     setbooksubmitMsg("")
   }
   const [booksubmitMsg, setbooksubmitMsg] = useState("")
@@ -103,12 +110,12 @@ function App() {
   useEffect(() => {
     fetch(`${API}/bookings`)
       .then(response => response.json())
-      .then(data => setBookings(data))
+      .then(data => setBookings(Array.isArray(data) ? data : []))
   }, [])
 
   const cancelBooking = (bookid) => {
-    const confirmCancel=window.confirm("Are you sure you want to cancel this booking?")
-    if (!confirmCancel){
+    const confirmCancel = window.confirm("Are you sure you want to cancel this booking?")
+    if (!confirmCancel) {
       return
     }
     fetch(`${API}/bookings/${bookid}`, {
@@ -136,10 +143,7 @@ function App() {
     getSession();
 
   }, [])
-  const [signinform, setSigninform] = useState(false)
-  const signin = () => {
-    setSigninform(prev => !prev)
-  }
+
   const [signindetails, setSignindetails] = useState({ email: "", password: "" })
 
   const handleSignin = (event) => {
@@ -156,12 +160,8 @@ function App() {
     }
     setSession(data.session);
     setSignindetails({ email: "", password: "" })
-    setSigninform(false)
+    setAuthOpen(false)
 
-  }
-  const [signupform, setSignupform] = useState(false)
-  const signup = () => {
-    setSignupform(prev => !prev)
   }
   const [signupdetails, setSignupdetails] = useState({ email: "", password: "" });
 
@@ -181,7 +181,7 @@ function App() {
     if (data.session) {
       setSession(data.session)
       setSignupdetails({ email: "", password: "" })
-      setSignupform(false)
+      setAuthOpen(false)
     }
     else {
       setSignupmsg("A email has been sent to verify your account")
@@ -191,13 +191,14 @@ function App() {
   const handleSignout = async () => {
     await supabase.auth.signOut()
     setSession(null)
+    setTab("bookspot")
   }
   const mySpots = session ? spots.filter(spot => spot.owner_id === session.user.id) : [];
-  const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : [];
+  const availableSpots = session ? spots.filter(spot => session.user.id !== spot.owner_id) : spots;
   const [spotdeletemsg, setSpotdeletemsg] = useState("")
   const handleDelete = (id) => {
-    const confirmDelete=window.confirm("Are you sure you want to delete this spot")
-    if (!confirmDelete){
+    const confirmDelete = window.confirm("Are you sure you want to delete this spot")
+    if (!confirmDelete) {
       return
     }
     fetch(`${API}/spots/${id}`, {
@@ -222,83 +223,111 @@ function App() {
       })
   }
   const myBookings = session ? bookings.filter(booking => booking.user_id === session.user.id) : [];
-  const [tab, setTab] = useState("bookspot");
+
+  const openTab = (key) => {
+    if (key !== "bookspot" && !session) {
+      setAuthOpen(true)
+      return
+    }
+    setTab(key)
+  }
+
   return (
-    <div>
-      <div className="header">
-        <img src={logo} alt="UniPark Logo" className="logo" />
-      </div>
-      <div>
-        {!session && (
-          <AuthSection
-            signinform={signinform}
-            signin={signin}
-            handleSignin={handleSignin}
-            submitSignin={submitSignin}
-            signinmessage={signinmessage}
-            signupform={signupform}
-            signup={signup}
-            handleSignup={handleSignup}
-            submitSignup={submitSignup}
-            signupmsg={signupmsg}
+    <div className="min-h-screen bg-base">
+      <header className="sticky top-0 z-20 flex flex-col items-center gap-4 border-b border-edge bg-surface px-4 py-3 sm:flex-row sm:justify-between">
+        <img src={logo} alt="UniPark Logo" className="h-12 w-auto" />
+
+        <nav className="flex flex-wrap justify-center gap-2 rounded-full border border-edge bg-card/60 p-1">
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => openTab(t.key)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                tab === t.key ? "bg-accent text-white" : "text-muted hover:text-ink"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {session ? (
+          <button
+            type="button"
+            onClick={handleSignout}
+            className="rounded-full border border-edge px-4 py-2 text-sm font-medium text-muted hover:text-ink"
+          >
+            Sign out
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAuthOpen(true)}
+            className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-strong"
+          >
+            Sign in
+          </button>
+        )}
+      </header>
+
+      <main className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-8">
+        {tab === "bookspot" && (
+          <div className="flex flex-col gap-6">
+            <ShowMap availableSpots={availableSpots} handleBook={handleBook} />
+            <AvailableSpots
+              availableSpots={availableSpots}
+              handleBook={handleBook}
+              bookingSpotId={bookingSpotId}
+              handleBookForm={handleBookForm}
+              submitBooking={submitBooking}
+              booksubmitMsg={booksubmitMsg}
+              bookings={bookings}
+              bookForm={bookForm}
+            />
+          </div>
+        )}
+
+        {tab === "ListSpot" && session && (
+          <CreateSpot
+            showForm={showForm}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            submitForm={submitForm}
+            submitMessage={submitMessage}
+            setShowForm={setShowForm}
           />
         )}
-      </div>
-      {session && (
-        <div>
-          <div className="tab-bar">
-            <div className="tab-bar-inner">
-              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("bookspot")}>Book a Parking spot</button>
-              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("Mylistings")}>My Listings</button>
-              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("ListSpot")}>List your own parking space</button>
-              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={() => setTab("Mybookings")}>My Bookings</button>
-              <button type="button" className={`tab-button ${tab === "bookspot" ? "active" : ""}`} onClick={handleSignout}>Sign out</button>
-            </div>
-          </div>
-          {tab === "bookspot" && (
-            <div>
-              <ShowMap availableSpots={availableSpots} handleBook={handleBook} />
-              <AvailableSpots
-                availableSpots={availableSpots}
-                handleBook={handleBook}
-                bookingSpotId={bookingSpotId}
-                handleBookForm={handleBookForm}
-                submitBooking={submitBooking}
-                booksubmitMsg={booksubmitMsg}
-                bookings={bookings}
-                bookForm={bookForm}
-                setBookForm={setBookForm}
-              />
-            </div>
-          )}
-          {tab === "ListSpot" && (
-            <CreateSpot
-              handleClick={handleClick}
-              showForm={showForm}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              submitForm={submitForm}
-              submitMessage={submitMessage}
-              setShowForm={setShowForm}
-            />
-          )}
-          {tab === "Mylistings" && (
-            <MySpots
-              mySpots={mySpots}
-              bookings={bookings}
-              handleDelete={handleDelete}
-              spotdeletemsg={spotdeletemsg}
-            />
-          )}
-          {tab === "Mybookings" && (
-            <MyBookings
-              myBookings={myBookings}
-              cancelBooking={cancelBooking}
-              cancelBookingMsg={cancelBookingMsg}
-              spots={spots}
-            />
-          )}
-        </div>
+
+        {tab === "Mylistings" && session && (
+          <MySpots
+            mySpots={mySpots}
+            bookings={bookings}
+            handleDelete={handleDelete}
+            spotdeletemsg={spotdeletemsg}
+          />
+        )}
+
+        {tab === "Mybookings" && session && (
+          <MyBookings
+            myBookings={myBookings}
+            cancelBooking={cancelBooking}
+            cancelBookingMsg={cancelBookingMsg}
+            spots={spots}
+          />
+        )}
+      </main>
+
+      {authOpen && (
+        <AuthSection
+          onClose={() => setAuthOpen(false)}
+          handleSignin={handleSignin}
+          submitSignin={submitSignin}
+          signinmessage={signinmessage}
+          handleSignup={handleSignup}
+          submitSignup={submitSignup}
+          signupmsg={signupmsg}
+        />
       )}
     </div>
   )
